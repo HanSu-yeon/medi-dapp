@@ -1,16 +1,20 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import Test from "./pages/Test";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
+import DataView from "./pages/DataView";
+import { Web3Provider } from "./utils/Web3Provider";
 
 function App() {
 	return (
-		<>
-			{/* <Test></Test> */}
-			<Home></Home>
-		</>
+		<Web3Provider>
+			<BrowserRouter>
+				<Routes>
+					<Route path="/" element={<Home />} />
+					<Route path="/mydata" element={<DataView />} />
+				</Routes>
+			</BrowserRouter>
+		</Web3Provider>
 	);
 }
 
