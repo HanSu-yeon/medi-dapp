@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-import "hardhat/console.sol";
 
 contract MediDataStorage {
-   
-    uint256 public storedValue;
 
     struct UserData{
         //100x 적어주기
+        uint256 class; //심장병 유무
         uint256 sbp; //수축기 혈압
         uint256 tobacco; //흡연 여부 or 흡연량
         uint256 ldl; //저밀도 지단백질
@@ -19,43 +17,43 @@ contract MediDataStorage {
         uint256 age; //연령
     }
 
-   mapping(address => UserData) public userRecords; //환자 기록
-   mapping(address => uint256) public class;//심장병 유무
+   mapping(address => UserData[]) public userRecords; //환자 기록
+   address[] private users; //환자 전체 주소 목록
 
-
-
-    function storeDecimal(uint256 _val) public{
-        storedValue = _val;
-    
-    }
-
-    function getDecimal() public view returns(uint256){
-        return storedValue;
-    }
-
-    function getRawValue() public view returns(uint256){
-        return storedValue; //내부 저장된 값 확인
-    }
-
-
-    //event 추가
+    event UserDataStored(address indexed user, uint256 indexed class ,uint256  sbp, uint256 tobacco,uint256 ldl, uint256 adiposity, uint256 famhist, uint256 typea, uint256 obesity, uint256 alcohol,uint256 age );
 
     //환자 데이터 저장
-    // function storeUserData(uint256 _class,uint256 _sbp, uint256 _tobacco,uint256 _ldl, uint256 _adiposity, uint256 _famhist, uint256 _typea, uint256 _obesity, uint256 _alcohol,uint256 _age ) public {
-    //     //환자 데이터     
-    //     userRecords[msg.sender] = UserData(_sbp, _tobacco, _ldl,_adiposity,_famhist,_typea, _obesity,_alcohol,_age);
-    //     //심장병 유무
-    //     class[msg.sender] = _class;
-    //     //이벤트
-    // }
+    function storeUserData(uint256 _class,uint256 _sbp, uint256 _tobacco,uint256 _ldl, uint256 _adiposity, uint256 _famhist, uint256 _typea, uint256 _obesity, uint256 _alcohol,uint256 _age ) public {
 
-
-
-    //환자 데이터 + 심장병 유무
-    function getUserData() public view returns(   UserData memory, uint256) {
-        return ( userRecords[msg.sender] , class[msg.sender]);  
+        if(userRecords[msg.sender].length ==0){
+            users.push(msg.sender); //새로운 사용자라면 배열에 추가
+        }
+        
+        //환자 데이터     
+       userRecords[msg.sender].push(UserData(_class,_sbp, _tobacco, _ldl,_adiposity,_famhist,_typea, _obesity,_alcohol,_age));
+        //이벤트 발생
+       emit UserDataStored(msg.sender, _class,_sbp, _tobacco, _ldl,_adiposity,_famhist,_typea, _obesity,_alcohol,_age);
     }
 
-    //전체 조회
+
+    //환자 데이터 조회
+    function getUserData() public view returns(UserData[] memory) {
+        return ( userRecords[msg.sender] );  
+    }
+
+    //환자 데이터 전체 조회
+    // function getAllData() public view returns(address[] memory, UserData[][] memory ){
+    //     UserData[][] memory allUserData = new UserData[][](users.length);
+
+    //     for(uint i=0; i < users.length;i++){
+    //         allUserData[i] = userRecords[users[i]];
+    //     }
+    //     return (users,allUserData);
+    // }
+
+    //최신데이터 조회
+    function getLatestData() public view returns(UserData memory){
+        return (userRecords[msg.sender][userRecords[msg.sender].length-1]);
+    }
 
 }
