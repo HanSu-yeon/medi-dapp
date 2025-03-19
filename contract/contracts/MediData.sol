@@ -1,59 +1,97 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
+import "hardhat/console.sol";
 
 contract MediDataStorage {
 
-    struct UserData{
-        //100x 적어주기
-        uint256 class; //심장병 유무
-        uint256 sbp; //수축기 혈압
-        uint256 tobacco; //흡연 여부 or 흡연량
-        uint256 ldl; //저밀도 지단백질
-        uint256 adiposity; //체지방률(비만도)
-        uint256 famhist; //가족력
-        uint256 typea; //A형 성격
-        uint256 obesity; //비만
-        uint256 alcohol; //알코올 섭취 여부 or 섭취량
-        uint256 age; //연령
+   //환자별 의료 데이터를 저장하는 매핑(key: "프로젝트명:유저식별자:컬럼명", value: 해당 컬럼 값)
+   mapping(string => uint256) public patientColumnData;
+   
+   //저장된 키 리스트(검색 및 조회용)
+   string[] public keys; 
+   //이벤트 정의
+   event DataStored(bytes32  indexed columnKeyHash, string columnKey, uint256 value);
+    /**
+     * @notice 환자의 의료 데이터를 저장하는 함수
+     * @param _columnKey 데이터의 키 (형식: "프로젝트명:유저식별자:컬럼명")
+     * @param _value 저장할 의료 데이터 값
+     */
+    function setPatientData(string memory _columnKey, uint256 _value) public {
+        //key가 빈 문자열이 아니면서 기존에 저장된 적이 없으면 keys 배열에 추가
+        if (patientColumnData[_columnKey] == 0 && bytes(_columnKey).length >0) {
+            keys.push(_columnKey); 
+        }
+        //환자 데이터를 저장 또는 업데이트
+        patientColumnData[_columnKey] = _value;
+        // 이벤트 발생 (키의 해시값을 인덱싱)
+        emit DataStored(keccak256(abi.encodePacked(_columnKey)), _columnKey, _value);
+    }
+    
+    /**
+     * @notice 특정 패턴 기준으로 데이터가 검색어와 일치하는지 확인하는 함수
+     * @param _str 비교 대상이 되는 문자열 
+     * @param _search 사용자가 검색하려는 문자열
+     * @return bool 검색어가 포함되어 있는지 여부
+     */
+    //검색어와 일치하는게 있는지 확인하는 함수 bool 반환
+    //검색어 글자 수: 프로젝트-> 5글자, 유저 식별자 ->7글자, 컬럼명->3글자
+    function isMatchedData(string memory _str, string memory _search) public pure returns(bool) {
+        bytes memory strBytes = bytes(_str);
+        bytes memory searchStr =bytes(_search); 
+        uint256 searchLength  = searchStr.length; 
+
+        uint256 startPos;
+        uint256 endPos;
+        //검색어 길이에 따른 검색 범위 설정 
+        //n=5 -> 프로젝트명, n=7 -> 환자 ID 위치, n=3->컬럼명 
+        if (searchLength  == 5) { startPos = 0; endPos = 4; } 
+        else if (searchLength  == 7) { startPos = 6; endPos = 12; }  
+        else if (searchLength  == 3) { startPos = 14; endPos = 16; }  
+        else { revert("Unsupported search length"); } //지원되지 않는 검색어 길이
+        
+        //입력 문자열 길이 체크(검색 범위를 초과하는지 확인) 
+        require(strBytes.length > endPos,"input string is too short") ;    
+        //해당 범위 내에서 검색어가 일치하는지 비교
+       for (uint256 i = startPos; i <= endPos; i++) {
+            if(searchStr[i-startPos] != strBytes[i]) return false;
+       }
+       return true;
     }
 
-   mapping(address => UserData[]) public userRecords; //환자 기록
-   address[] private users; //환자 전체 주소 목록
+    /**
+     * @notice 검색어와 일치하는 환자의 데이터를 조회하는 함수
+     * @param _search 검색어 (3글자
+     * @return keyResult 검색된 키 배열
+     * @return valueResult 검색된 값 배열
+     */
+    //검색어와 일치하는 환자, 값 반환하는 배열
+     function searchData(string memory _search) public view returns (string[] memory,uint256[] memory){
+        
+        uint256 len = keys.length;
+        uint256 matchCount=0;
 
-    event UserDataStored(address indexed user, uint256 indexed class ,uint256  sbp, uint256 tobacco,uint256 ldl, uint256 adiposity, uint256 famhist, uint256 typea, uint256 obesity, uint256 alcohol,uint256 age );
-
-    //환자 데이터 저장
-    function storeUserData(uint256 _class,uint256 _sbp, uint256 _tobacco,uint256 _ldl, uint256 _adiposity, uint256 _famhist, uint256 _typea, uint256 _obesity, uint256 _alcohol,uint256 _age ) public {
-
-        if(userRecords[msg.sender].length ==0){
-            users.push(msg.sender); //새로운 사용자라면 배열에 추가
+        //검색된 데이터 개수 확인
+        for(uint256 i=0; i< len; i++){
+            if(isMatchedData(keys[i], _search)){
+                matchCount++;
+            }    
         }
         
-        //환자 데이터     
-       userRecords[msg.sender].push(UserData(_class,_sbp, _tobacco, _ldl,_adiposity,_famhist,_typea, _obesity,_alcohol,_age));
-        //이벤트 발생
-       emit UserDataStored(msg.sender, _class,_sbp, _tobacco, _ldl,_adiposity,_famhist,_typea, _obesity,_alcohol,_age);
-    }
+        //검색 결과 배열 생성
+        string[] memory keyResult = new string[](matchCount);
+        uint256[] memory valueResult = new uint256[](matchCount);
+        uint256 count=0;
 
+        //검색어와 일치하는 데이터를 결과 배열에 저장
+        for (uint256 i = 0; i < len; i++) {
+            if (isMatchedData(keys[i], _search)) {
+                keyResult[count] = keys[i];
+                valueResult[count] = patientColumnData[keys[i]];
+                count++;
+                }
+        }
 
-    //환자 데이터 조회
-    function getUserData() public view returns(UserData[] memory) {
-        return ( userRecords[msg.sender] );  
-    }
-
-    //환자 데이터 전체 조회
-    // function getAllData() public view returns(address[] memory, UserData[][] memory ){
-    //     UserData[][] memory allUserData = new UserData[][](users.length);
-
-    //     for(uint i=0; i < users.length;i++){
-    //         allUserData[i] = userRecords[users[i]];
-    //     }
-    //     return (users,allUserData);
-    // }
-
-    //최신데이터 조회
-    function getLatestData() public view returns(UserData memory){
-        return (userRecords[msg.sender][userRecords[msg.sender].length-1]);
-    }
+        return (keyResult, valueResult);
+    } 
 
 }
