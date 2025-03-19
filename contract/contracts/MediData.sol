@@ -11,6 +11,38 @@ contract MediDataStorage {
    string[] public keys; 
    //이벤트 정의
    event DataStored(bytes32  indexed columnKeyHash, string columnKey, uint256 value);
+
+   constructor() {
+        string[10] memory userIDs = [
+            "usrid01", "usrid02","usrid03","usrid04","usrid05","usrid06","usrid07","usrid08","usrid09","usrid10"
+        ];
+
+        string[10] memory colums = ["cls", "sbp", "tob", "ldl", "adi", "fmh", "tpa", "obs", "alc", "age"];
+
+        uint256[10] memory sampleValues=[uint256(0), 133, 138, 675, 1336, 0, 53, 3129, 3599, 30];
+
+        for(uint256 i=0; i<userIDs.length; i++){
+            //각 확자마다 모든 컬럼 초기화
+            for(uint256 j=0; j<colums.length; j++){
+                string memory key= string(abi.encodePacked("AAAAA:",userIDs[i],":",colums[j]));
+                _initialize(key, sampleValues[j]+(i*10));
+            }
+        }
+
+    }
+    //n=5 -> 프로젝트명, n=7 -> 환자 ID 위치, n=3->컬럼명 
+    function _initialize(string memory _columnKey, uint256 _value) public {
+     
+
+         if (patientColumnData[_columnKey] == 0 && bytes(_columnKey).length >0) {
+            keys.push(_columnKey); 
+        }
+        //환자 데이터를 저장 또는 업데이트
+        patientColumnData[_columnKey] = _value;
+        // 이벤트 발생 (키의 해시값을 인덱싱)
+        emit DataStored(keccak256(abi.encodePacked(_columnKey)), _columnKey, _value);
+    }
+    
     /**
      * @notice 환자의 의료 데이터를 저장하는 함수
      * @param _columnKey 데이터의 키 (형식: "프로젝트명:유저식별자:컬럼명")
