@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-import "hardhat/console.sol";
 
 contract MediDataStorage {
 
@@ -13,8 +12,10 @@ contract MediDataStorage {
    event DataStored(bytes32  indexed columnKeyHash, string columnKey, uint256 value);
 
    constructor() {
-        string[10] memory userIDs = [
-            "usrid01", "usrid02","usrid03","usrid04","usrid05","usrid06","usrid07","usrid08","usrid09","usrid10"
+        string[29] memory userIDs = [
+            "usrid31", "usrid32","usrid33","usrid34","usrid35","usrid36","usrid37","usrid38","usrid39","usrid40",
+            "usrid41", "usrid42","usrid43","usrid44","usrid45","usrid46","usrid47","usrid48","usrid49","usrid50"
+            "usrid51", "usrid52","usrid53","usrid54","usrid55","usrid56","usrid57","usrid58","usrid59","usrid60"
         ];
 
         string[10] memory colums = ["cls", "sbp", "tob", "ldl", "adi", "fmh", "tpa", "obs", "alc", "age"];
