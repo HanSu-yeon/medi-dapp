@@ -3,7 +3,7 @@ import { MaterialReactTable, useMaterialReactTable } from "material-react-table"
 import { useWeb3 } from "../utils/Web3Provider";
 
 export default function BCTable({ data }) {
-	console.log("dddd", data);
+	// console.log("dddd", data);
 
 	//column definitions - strongly typed if you are using TypeScript (optional, but recommended)
 	const columns = useMemo(
@@ -25,7 +25,7 @@ export default function BCTable({ data }) {
 				id: "cls", //id required if you use accessorFn instead of accessorKey
 				header: "cls",
 				Header: <i style={{ color: "black" }}>cls</i>, //optional custom markup
-				accessorFn: (originalRow) => (originalRow.id ? parseFloat(originalRow.cls) : "N/A"),
+				accessorFn: (originalRow) => (originalRow.cls ? parseFloat(originalRow.cls) : "N/A"),
 				Cell: ({ cell }) => <i>{cell.getValue().toLocaleString()}</i>, //optional custom cell render
 			},
 
@@ -97,6 +97,12 @@ export default function BCTable({ data }) {
 		],
 		[]
 	);
-
+	// const table = useMaterialReactTable({
+	// 	columns,
+	// 	data,
+	// 	initialState: { pagination: { pageSize: 50 } }, // 기본적으로 50개씩 표시
+	// 	enablePagination: true, // 페이지네이션 활성화
+	// });
 	return <MaterialReactTable columns={columns} data={data} />;
+	// return <MaterialReactTable table={table} />;
 }
