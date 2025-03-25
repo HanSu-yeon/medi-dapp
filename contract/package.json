@@ -10,7 +10,8 @@
   "description": "",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.19"
+    "hardhat": "^2.22.19",
+    "hardhat-gas-reporter": "^2.2.2"
   },
   "dependencies": {
     "@kaiachain/contracts": "^1.0.1",

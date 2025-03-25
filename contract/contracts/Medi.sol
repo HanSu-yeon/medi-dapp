@@ -38,6 +38,7 @@ contract Medi{
         }
 
     }
+   
 
     function _initialize(string memory _columnKey, uint256 _value) internal {
         if (patientColumnData[_columnKey] == 0 && bytes(_columnKey).length > 0) {

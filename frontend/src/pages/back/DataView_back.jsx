@@ -34,11 +34,29 @@ function DataView() {
 	const handleUserData = async (event) => {
 		event.preventDefault();
 
-		const searchResult = await contract.searchData("sbp");
+		const userData = await contract.getUserData();
 
-		console.log(searchResult);
+		const convertedValue = userData.map((item) => convertToRaw(item));
+
+		convertedValue.map((item) => {
+			const medidata = {
+				class: item[0],
+				sbp: item[1],
+				tobacco: item[2],
+				ldl: item[3],
+				adiposity: item[4],
+				famhist: item[5],
+				typea: item[6],
+				obesity: item[7],
+				alcohol: item[8],
+				age: item[9],
+			};
+
+			setAllMediData([...allMediData, medidata]);
+			// console.log(medidata);
+		});
 	};
-
+	console.log("all:", allMediData);
 	const handleLatestData = async (event) => {
 		event.preventDefault();
 		const latestData = await contract.getLatestData();
@@ -87,7 +105,7 @@ function DataView() {
 							className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-10 py-2.5 text-center cursor-pointer"
 							onClick={handleUserData}
 						>
-							getAllKeys 조회
+							데이터 조회
 						</button>
 						<p>데이터:</p>
 
