@@ -2,11 +2,11 @@
 pragma solidity ^0.8.20;
 
 contract Medi{
-    //환자별 의료 데이터를 저장하는 매핑
-    mapping(string => uint256) public patientColumnData;
-
     //프로젝트명 저장
     string public projectName;
+
+    //환자별 의료 데이터를 저장하는 매핑
+    mapping(string => uint256) public patientColumnData;
 
     //저장된 키 리스트(검색 및 조회용)
     string[] public keys;
@@ -14,29 +14,28 @@ contract Medi{
     //이벤트 정의
     event DataStored(bytes32 indexed columnKeyHash, string columnKey, uint256 value);
 
-  constructor(string memory _projectName) {
+    constructor(string memory _projectName) {
         projectName = _projectName;
         
-        string[10] memory userIDs = [
-            "usrid01", "usrid02","usrid03","usrid04","usrid05","usrid06","usrid07","usrid08","usrid09","usrid10"
-            // "usrid11", "usrid12","usrid13","usrid14","usrid15","usrid16","usrid17","usrid18","usrid19","usrid20",
-            // "usrid21", "usrid22","usrid23","usrid24","usrid25","usrid26","usrid27","usrid28","usrid29","usrid30"
-        ];
+       // string[10] memory userIDs = [
+        //     "usrid01", "usrid02","usrid03","usrid04","usrid05","usrid06","usrid07","usrid08","usrid09","usrid10"
+        //     // "usrid11", "usrid12","usrid13","usrid14","usrid15","usrid16","usrid17","usrid18","usrid19","usrid20",
+        //     // "usrid21", "usrid22","usrid23","usrid24","usrid25","usrid26","usrid27","usrid28","usrid29","usrid30"
+        // ];
 
-        string[10] memory colums = ["cls", "sbp", "tob", "ldl", "adi", "fmh", "tpa", "obs", "alc", "age"];
+        // string[10] memory colums = ["cls", "sbp", "tob", "ldl", "adi", "fmh", "tpa", "obs", "alc", "age"];
 
-        uint256[10] memory sampleValues=[uint256(0), 133, 138, 675, 1336, 0, 53, 3129, 3599, 30];
+        // uint256[10] memory sampleValues=[uint256(0), 133, 138, 675, 1336, 0, 53, 3129, 3599, 30];
 
-        for(uint256 i=0; i<userIDs.length; i++){
-            //각 확자마다 모든 컬럼 초기화
-            for(uint256 j=0; j<colums.length; j++){
-                string memory key= string(
-                    abi.encodePacked(_projectName,":",userIDs[i],":",colums[j])
-                    );
-                _initialize(key, sampleValues[j]+(i*10));
-            }
-        }
-
+        // for(uint256 i=0; i<userIDs.length; i++){
+        //     //각 확자마다 모든 컬럼 초기화
+        //     for(uint256 j=0; j<colums.length; j++){
+        //         string memory key= string(
+        //             abi.encodePacked(_projectName,":",userIDs[i],":",colums[j])
+        //             );
+        //         _initialize(key, sampleValues[j]+(i*10));
+        //     }
+        // }
     }
    
 
@@ -57,7 +56,12 @@ contract Medi{
         emit DataStored(keccak256(abi.encodePacked(_columnKey)), _columnKey, _value);
     }
 
-    
+    //저장된 키의 총 개수를 반환
+    function getKeyLength() public view returns(uint256){
+        return keys.length;
+    }
+
+    //키에 대해 부분 문자열 매칭(project,userId, column)
     function isMatchedData(string memory _str, string memory _search) public pure returns(bool){
         bytes memory strBytes = bytes(_str);
         bytes memory searchBytes = bytes(_search);
@@ -140,8 +144,6 @@ contract Medi{
         return count;
     }
 
-    //저장된 키의 총 개수를 반환
-    function getKeyLength() public view returns(uint256){
-        return keys.length;
-    }
+
+
 }
