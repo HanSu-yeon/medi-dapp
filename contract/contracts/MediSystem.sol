@@ -53,12 +53,11 @@ contract MediSystem{
         string[] memory _userIds,
         string[] memory _columnKeys,
         uint256[] memory _values,
-
+        bytes32[] memory _dataHashes
     ) public {
         require(
             _columnKeys.length == _values.length &&
-            _values.length == _userIds.length &&
-            _userIds.length == _dataHashes.length,
+            _values.length == _userIds.length ,
             "Array length mismatch"
         );
 
@@ -82,6 +81,28 @@ contract MediSystem{
         }
 
     }
+
+    //csv 배치 데이터용 함수
+    function submitBatchFromCSV(
+        string memory _projectName,
+        string[] memory _columnKeys,
+        uint256[] memory _values,
+        string[] memory _userIds
+    )external {
+        require(
+            _userIds.length == _columnKeys.length &&
+            _columnKeys.length == _values.length,
+            "Array length mismatch"
+        );
+        address mediAddr = MediFactory(factoryAddr).getMediAddress(_projectName);
+        require(mediAddr != address(0), "Project not found");
+        Medi medi = Medi(mediAddr);
+
+        for(uint256 i=0; i < _columnKeys.length; i++){
+            medi.setPatientData(_columnKeys[i],_values[i]);
+            emit SyntheticDataStored(_projectName, _columnKeys[i], _values[i]);
+        }
+    } 
 
 
     //통합 공개 데이터 검색
