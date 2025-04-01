@@ -9,7 +9,7 @@ pragma solidity ^0.8.20;
 
 import "./Medi.sol";
 import "./MediFactory.sol";
-import "./User.sol";
+// import "./User.sol";
 
 contract MediSystem{
     // Medifactory 주소
@@ -27,18 +27,18 @@ contract MediSystem{
 
 
     //사용자 등록（실제 유저만 생성）
-    function registerUser(string memory _userId) external {
-        //사용자 존재하는지 확인
-        require(users[_userId] == address(0), "User already exists");
-        User user = new User(_userId);
-        users[_userId] = address(user);
-        emit UserRegistered(_userId, address(user));
-    }
+    // function registerUser(string memory _userId) external {
+    //     //사용자 존재하는지 확인
+    //     require(users[_userId] == address(0), "User already exists");
+    //     User user = new User(_userId);
+    //     users[_userId] = address(user);
+    //     emit UserRegistered(_userId, address(user));
+    // }
 
     //사용자 조회
-    function getUser(string memory _userId) public view returns(address){
-        return users[_userId];
-    }   
+    // function getUser(string memory _userId) public view returns(address){
+    //     return users[_userId];
+    // }   
 
     //Medi 프로젝트 생성(위임)
     function createProject(string memory _projectName) public{
@@ -50,14 +50,14 @@ contract MediSystem{
     //합성 데이터 등록
     function submitSyntheticData(
         string memory _projectName,
-        string[] memory _userIds,
+        // string[] memory _userIds,
         string[] memory _columnKeys,
-        uint256[] memory _values,
-        bytes32[] memory _dataHashes
+        uint256[] memory _values
+        // bytes32[] memory _dataHashes
     ) public {
         require(
-            _columnKeys.length == _values.length &&
-            _values.length == _userIds.length ,
+            _columnKeys.length == _values.length,
+           // _values.length == _userIds.length ,
             "Array length mismatch"
         );
 
@@ -70,19 +70,13 @@ contract MediSystem{
         for(uint256 i=0; i<_columnKeys.length; i++){
             medi.setPatientData(_columnKeys[i],_values[i]); //medi 컨트랙트에 저장
             emit SyntheticDataStored(_projectName, _columnKeys[i],_values[i]);//이벤트 발생-> 블록체인 로그에 기록됨 
-            //해당 컬럼키가 어떤 사용자(userId)의 데이터인지 확인 -> 그 사용자의 User 컨트랙트 주소 가져오기기
-            address userAddr = users[_userIds[i]];
-            //사용자 컨트랙트가 있는 경우에만 기록 남기기(등록 안된 사용자일수도 있기 때문문)
-            if(userAddr != address(0)){
-                //User 컨트랙트에 연결된 의료 기록 참조 남기기(나한테 어떤 등록데이터가 등록됐는가 이력남기는 용도도)
-               User(userAddr).linkProjectRecord(_projectName, _columnKeys[i],_dataHashes[i]);
-            }
-
+            
         }
 
     }
 
-    //csv 배치 데이터용 함수
+    //csv 배치 데이터용 함수(위랑 중복 지우기)
+    /**
     function submitBatchFromCSV(
         string memory _projectName,
         string[] memory _columnKeys,
@@ -103,7 +97,7 @@ contract MediSystem{
             emit SyntheticDataStored(_projectName, _columnKeys[i], _values[i]);
         }
     } 
-
+ */
 
     //통합 공개 데이터 검색
     function searchPublicData(string memory _search, uint256 _offset, uint256 _limit) public view returns(string[] memory, uint256[] memory){

@@ -85,7 +85,7 @@ contract MediFactory {
     //데이터를 모아서 일정 개수만큼(limit) 페이지 단위로 보여주기 위한 함수
     function searchAllPaged(
         string memory _search,
-         uint256 _offset,
+        uint256 _offset,
         uint256 _limit
     ) public view returns(
         string[] memory keys,

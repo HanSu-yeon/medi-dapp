@@ -11,7 +11,6 @@ contract User {
     uint256 private createdAt;
     uint256 private lastUpdated;
     
-    //recordType도 넣을까나-> 일단 합성만이니 보류
     
     struct MedicalRecord{
         uint256 timestamp;

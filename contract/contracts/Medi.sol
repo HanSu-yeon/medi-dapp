@@ -16,26 +16,6 @@ contract Medi{
 
     constructor(string memory _projectName) {
         projectName = _projectName;
-        
-       // string[10] memory userIDs = [
-        //     "usrid01", "usrid02","usrid03","usrid04","usrid05","usrid06","usrid07","usrid08","usrid09","usrid10"
-        //     // "usrid11", "usrid12","usrid13","usrid14","usrid15","usrid16","usrid17","usrid18","usrid19","usrid20",
-        //     // "usrid21", "usrid22","usrid23","usrid24","usrid25","usrid26","usrid27","usrid28","usrid29","usrid30"
-        // ];
-
-        // string[10] memory colums = ["cls", "sbp", "tob", "ldl", "adi", "fmh", "tpa", "obs", "alc", "age"];
-
-        // uint256[10] memory sampleValues=[uint256(0), 133, 138, 675, 1336, 0, 53, 3129, 3599, 30];
-
-        // for(uint256 i=0; i<userIDs.length; i++){
-        //     //각 확자마다 모든 컬럼 초기화
-        //     for(uint256 j=0; j<colums.length; j++){
-        //         string memory key= string(
-        //             abi.encodePacked(_projectName,":",userIDs[i],":",colums[j])
-        //             );
-        //         _initialize(key, sampleValues[j]+(i*10));
-        //     }
-        // }
     }
    
 
